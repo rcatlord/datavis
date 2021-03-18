@@ -1,0 +1,109 @@
+---
+title: "stacked area chart"
+output: 
+  html_document:
+    theme: paper
+    highlight: kate
+    code_folding: hide
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE, warning=FALSE, dev='svg')
+```
+
+```{css, echo=FALSE}
+h1.title.toc-ignore {
+  text-align: center;
+  color: #000000;
+}
+
+.btn-group {
+  display: none;
+}
+
+div.col-md-12 .pull-right {
+  float: left !important
+}
+```
+
+<br />
+
+<div class="container-fluid">
+<div class="row">
+<div class="col-sm-6">
+```{r plot, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+# packages
+library(tidyverse) ; library(janitor) ; library(glue) ; library(scales) ; library(ggtext)
+
+# data
+df <- read_csv("electricity-prod-source-stacked.csv") %>% 
+  clean_names() %>% 
+  filter(entity == "United Kingdom",
+         year >= 1990) %>% 
+  select(-c(entity, code)) %>% 
+  pivot_longer(-year, names_to = "source", values_to = "value") %>% 
+  mutate(source = case_when(
+    str_detect(tolower(source), "coal") ~ "Coal", 
+    str_detect(tolower(source), "gas") ~ "Gas", 
+    str_detect(tolower(source), "oil") ~ "Oil", 
+    str_detect(tolower(source), "nuclear") ~ "Nuclear", 
+    str_detect(tolower(source), "wind") ~ "Wind", 
+    str_detect(tolower(source), "solar") ~ "Solar", 
+    str_detect(tolower(source), "hydro") ~ "Hydroelectric", 
+    str_detect(tolower(source), "other") ~ "Other renewables"
+  )) %>% 
+  group_by(year, source) %>%
+  summarise(n = sum(value)) %>%
+  mutate(percentage = n / sum(n),
+         fill = c("#00468BFF", "#ED0000FF", "#42B540FF", "#0099B4FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "#ADB6B6FF"),
+         name = glue("<i style='color:{fill}'>{source}</i>"))
+
+# plot
+p <- ggplot() + 
+  geom_area(data = df, aes(x = year, y = percentage, fill = fill), alpha = 0.6, 
+            position = position_stack(reverse = TRUE), show.legend = FALSE) +
+  scale_fill_identity() +
+  scale_x_continuous(expand = c(0, 0),
+                     breaks = c(1990,1995,2000,2005,2010,2015,2020)) +
+  labs(x = NULL, y = NULL,
+       title = "Electricity production by source",
+       subtitle = "United Kingdom",
+       caption = "Source: Our World in Data") 
+
+labels <- left_join(filter(df, year == 2020),
+                    filter(layer_data(p, 1), x == 2020), 
+                    by = "fill") %>% 
+  select(year, name, y)
+
+p +
+  scale_y_continuous(expand = c(0, 0), 
+                     sec.axis = sec_axis(~ ., 
+                                         breaks = pull(labels, y)-0.01,
+                                         labels = pull(labels, name)),
+                     labels = percent) +
+  theme_bw() +
+  theme(
+    text = element_text("Source Sans Pro", size = 14, lineheight = 18),
+    plot.margin = unit(rep(0.5, 4), "cm"),
+    panel.border = element_blank(),
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.line.x = element_line(),
+    axis.ticks.y = element_blank(),
+    axis.text.x = element_text(size = rel(0.7), face = "bold"),
+    axis.text.y.left = element_text(size = rel(0.7), face = "bold"),
+    axis.text.y.right = element_markdown(size = rel(0.7), face = "bold"),
+    axis.title = element_text(size = rel(0.85), face = "bold", hjust = 1),
+    plot.title = element_text(family = "Merriweather-Black", size = rel(1), hjust = 0, margin = margin(b = 7)),
+    plot.subtitle = element_text(size = rel(0.85), hjust = 0),
+    plot.caption = element_text(size = rel(0.6), color = "#777777", hjust = 1, margin = margin(t = 15))
+  )
+```
+</div>
+
+<div class="col-sm-6">
+```{r plot, eval=FALSE}
+```
+</div>
+</div>
+</div>
