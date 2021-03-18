@@ -1,0 +1,95 @@
+---
+title: "slopechart"
+output: 
+  html_document:
+    theme: paper
+    highlight: kate
+    code_folding: hide
+---
+  
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE, warning=FALSE, dev='svg')
+```
+
+```{css, echo=FALSE}
+h1.title.toc-ignore {
+  text-align: center;
+  color: #000000;
+}
+
+.btn-group {
+  display: none;
+}
+
+div.col-md-12 .pull-right {
+  float: left !important
+}
+```
+
+<br />
+
+<div class="container-fluid">
+<div class="row">
+<div class="col-sm-6">
+```{r plot, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
+# packages
+library(tidyverse) ; library(gapminder) ; library(nord)
+
+# ggplot2 theme
+theme_readable <- function(base_size = 14) {
+  theme_bw(base_size = base_size) %+replace%
+    theme(
+      text = element_text("Source Sans Pro", size = 14, lineheight = 18),
+      plot.margin = unit(rep(0.5, 4), "cm"),
+      panel.border = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.ticks = element_blank(),
+      axis.line = element_blank(),
+      axis.title = element_text(size = rel(0.85), face = "bold", hjust = 1),
+      plot.title = element_text(family = "Merriweather-Black", size = rel(1), lineheight = 22, hjust = 0.5, margin = margin(b = 20)),
+      plot.subtitle = element_text(size = rel(0.85), margin = margin(b = 10), hjust = 0),
+      plot.caption = element_text(size = 10, color = "#777777", hjust = 1, margin = margin(t = 15))
+    )
+}
+
+# data
+df <- filter(gapminder, country %in% c("Bahrain", "Iceland", "Jamaica", "Madagascar") & year %in% c(1952, 2007)) %>% 
+  mutate(year = factor(year))
+
+# plot
+ggplot(df, aes(x = year, y = lifeExp)) +
+  geom_line(aes(group = country), colour = "#bdbdbd") +
+  geom_point(aes(fill = country), pch = 21, size = 4, stroke = 1, colour = "white") +
+  geom_text(data = filter(df, year == 1952), 
+            aes(x = year, y = lifeExp, colour = country, 
+                label = round(lifeExp, 0)), 
+            size = 3, hjust = 1.7) +
+  geom_text(data = filter(df, year == 2007), 
+            aes(x = year, y = lifeExp, colour = country, 
+                label = paste0(country, ", ", round(lifeExp, 0))), 
+            size = 3, hjust = -0.1) +
+  scale_x_discrete(expand = c(0, -5), position = "top") +
+  scale_y_continuous(expand = c(0, 0)) +
+  scale_fill_nord("algoma_forest") +
+  scale_color_nord("algoma_forest") +
+  labs(x = NULL, y = NULL,
+       title = "Change in life expectancy",
+       subtitle = NULL,
+       caption = "Source: gapminder.org") +
+  theme_readable() +
+  theme(
+    panel.grid.major = element_blank(),
+    axis.text.x = element_text(),
+    axis.text.y = element_blank(),
+    legend.position = "none"
+  ) +
+  coord_cartesian(ylim = c(35,85), clip = "off") 
+```
+</div>
+
+<div class="col-sm-6">
+```{r plot, eval=FALSE}
+```
+</div>
+</div>
+</div>
