@@ -1,41 +1,15 @@
 ---
-title: "stacked area chart"
-output: 
-  html_document:
-    theme: paper
-    highlight: kate
-    code_folding: hide
+pagetitle: "Stacked area chart"
+output: html_document
 ---
-  
+
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo=TRUE, warning=FALSE, dev='svg')
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE)
 ```
 
-```{css, echo=FALSE}
-h1.title.toc-ignore {
-  text-align: center;
-  color: #000000;
-}
-
-.btn-group {
-  display: none;
-}
-
-div.col-md-12 .pull-right {
-  float: left !important
-}
-```
-
-<br />
-
-<div class="container-fluid">
-<div class="row">
-<div class="col-sm-6">
-```{r plot, eval=TRUE, echo=FALSE, message=FALSE, warning=FALSE}
-# packages
+```{r plot}
 library(tidyverse) ; library(janitor) ; library(glue) ; library(scales) ; library(ggtext)
 
-# data
 df <- read_csv("electricity-prod-source-stacked.csv") %>% 
   clean_names() %>% 
   filter(entity == "United Kingdom",
@@ -58,7 +32,6 @@ df <- read_csv("electricity-prod-source-stacked.csv") %>%
          fill = c("#00468BFF", "#ED0000FF", "#42B540FF", "#0099B4FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "#ADB6B6FF"),
          name = glue("<i style='color:{fill}'>{source}</i>"))
 
-# plot
 p <- ggplot() + 
   geom_area(data = df, aes(x = year, y = percentage, fill = fill), alpha = 0.6, 
             position = position_stack(reverse = TRUE), show.legend = FALSE) +
@@ -99,11 +72,3 @@ p +
     plot.caption = element_text(size = rel(0.6), color = "#777777", hjust = 1, margin = margin(t = 15))
   )
 ```
-</div>
-
-<div class="col-sm-6">
-```{r plot, eval=FALSE}
-```
-</div>
-</div>
-</div>
