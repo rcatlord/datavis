@@ -5,10 +5,14 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE)
+
+library(tidyverse) ; library(janitor) ; library(glue) ; library(scales) ; library(ggtext)
 ```
 
-```{r plot}
-library(tidyverse) ; library(janitor) ; library(glue) ; library(scales) ; library(ggtext)
+```{r data}
+# Electricity production in the UK by source
+# Source: Our World in Data
+# URL: ourworldindata.org/electricity-mix
 
 df <- read_csv("electricity-prod-source-stacked.csv") %>% 
   clean_names() %>% 
@@ -31,7 +35,9 @@ df <- read_csv("electricity-prod-source-stacked.csv") %>%
   mutate(percentage = n / sum(n),
          fill = c("#00468BFF", "#ED0000FF", "#42B540FF", "#0099B4FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "#ADB6B6FF"),
          name = glue("<i style='color:{fill}'>{source}</i>"))
+```
 
+```{r plot}
 p <- ggplot() + 
   geom_area(data = df, aes(x = year, y = percentage, fill = fill), alpha = 0.6, 
             position = position_stack(reverse = TRUE), show.legend = FALSE) +

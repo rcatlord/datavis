@@ -1,0 +1,53 @@
+---
+pagetitle: "Bar chart"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE)
+
+library(tidyverse) ; library(scales) ; library(ggtext)
+```
+
+```{r data}
+# UK emissions by sector 
+# Source: Department for Business, Energy & Industrial Strategy
+# URL: https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/875485/2019_UK_greenhouse_gas_emissions_provisional_figures_statistical_release.pdf
+
+df <- tribble(
+  ~sector, ~year, ~emissions,
+  "Energy supply", 2019, 90.1,
+  "Business", 2019, 64.7,
+  "Transport", 2019, 119.6,
+  "Public", 2019, 8.0,
+  "Residential", 2019, 65.2,
+  "Agriculture", 2019, 5.7,
+  "Industrial process", 2019, 9.7,
+  "Waste management", 2019, 0.2,
+  "Land-use change & forestry activities", 2019, -11.7
+  )
+```
+
+
+```{r plot}
+ggplot(df, aes(x = fct_reorder(sector, emissions), emissions)) +
+  geom_col(fill = "#476298", width = 0.8) +
+  scale_x_discrete(labels = wrap_format(20)) +
+  scale_y_continuous(expand = c(0, 0), breaks = seq(-20, 120, 20), limits = c(-20, 120)) +
+  labs(x = NULL, y = "million tonnes",
+       title = "Transport is the biggest carbon emitter",
+       subtitle = paste0("<span style = 'color:#757575;'>CO<sub>2</sub> emissions by sector, UK, 2019</span>"),
+       caption = "Source: Department for Business, Energy & Industrial Strategy") +
+  coord_flip(clip = "off") +
+  theme_minimal(base_size = 14) +
+  theme(text = element_text(family = "Source Sans Pro"),
+        plot.margin = unit(rep(1, 4), "cm"),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.line.y = element_line(colour = "#bdbdbd"),
+        plot.title.position = "plot",
+        plot.title = element_text(family = "Merriweather", face = "bold", size = 22, lineheight = 26),
+        plot.subtitle = element_markdown(margin = margin(b = 20)),
+        plot.caption = element_text(colour = "grey60", margin = margin(t = 20, b = -10)),
+        axis.title.x = element_text(hjust = 1, margin = margin(t = 10)))
+```
