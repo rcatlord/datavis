@@ -2,6 +2,7 @@
 
 ### [Plot](https://observablehq.com/@observablehq/plot)
 
+- [column chart](https://rcatlord.github.io/datavis/Plot/column_chart)
 - [line chart](https://rcatlord.github.io/datavis/Plot/line_chart)
 
 ### [ggplot2](https://ggplot2.tidyverse.org/index.html)
